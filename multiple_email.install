@@ -1,0 +1,86 @@
+<?php
+// $Id: multiple_email.install,v 1.1.2.1 2007/12/18 04:42:22 joshbenner Exp $
+
+/**
+ * @file
+ * Install file for multiple_email module
+ */
+
+ /**
+  * Implementation of hook_install()
+  */
+function multiple_email_install() {
+  drupal_install_schema('multiple_email');
+
+  // Now import current users' emails
+  db_query("
+    INSERT INTO {multiple_email}
+      (uid, email, time_registered, confirmed)
+    SELECT
+      uid,
+      mail,
+      created,
+      IF(login, 1, 0)
+    FROM {users}
+    WHERE uid != 0
+  ");
+  
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function multiple_email_uninstall() {
+  drupal_uninstall_schema('multiple_email');
+}
+
+function multiple_email_schema() {
+  $schema['multiple_email'] = array(
+    'description' => 'The base table for multiple email.',
+    'fields' => array(
+      'eid' => array(
+        'type' => 'serial',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'uid' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'email' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'time_registered' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0),
+      'confirmed' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE),
+      'confirm_code' => array(
+        'type' => 'varchar',
+        'length' => 255,
+        'not null' => TRUE),
+      'time_code_generated' => array(
+        'type' => 'int',
+        'not null' => TRUE,
+        'default' => 0),
+       'attempts' => array(
+        'type' => 'int',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => 0)               
+    ),
+    'indexes' => array(
+      'uid'        => array('uid'),
+      'email'        => array('email'),
+    ),
+    'unique keys' => array(
+      'eid' => array('eid')
+    ),
+    'primary key' => array('eid'),
+  );
+
+  return $schema;
+}
