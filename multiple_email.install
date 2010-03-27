@@ -1,0 +1,57 @@
+<?php
+// $Id: multiple_email.install,v 1.1.2.1 2007/12/18 04:42:22 joshbenner Exp $
+
+/**
+ * @file
+ * Install file for multiple_email module
+ */
+
+ /**
+  * Implementation of hook_install()
+  */
+function multiple_email_install() {
+  switch ($GLOBALS['db_type']) {
+    case 'mysql':
+    case 'mysqli':
+      db_query("
+        CREATE TABLE {multiple_email} (
+          eid int(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+          uid int(10) UNSIGNED NOT NULL,
+          email varchar(255) NOT NULL,
+          time_registered int(11) UNSIGNED NOT NULL,
+          confirmed tinyint(1) NOT NULL,
+          confirm_code varchar(255) NOT NULL,
+          time_code_generated int(11) UNSIGNED NOT NULL,
+          attempts tinyint(1) UNSIGNED NOT NULL DEFAULT 0,
+          PRIMARY KEY (eid),
+          INDEX uid (uid),
+          INDEX email (email)
+        )  /*!40100 DEFAULT CHARACTER SET utf8 */;
+      ");
+      break;
+    case 'pgsql':
+      // Someone should write this...?
+      break;
+  }
+
+  // Now import current users' emails
+  db_query("
+    INSERT INTO {multiple_email}
+      (uid, email, time_registered, confirmed)
+    SELECT
+      uid,
+      mail,
+      created,
+      IF(login, 1, 0)
+    FROM {users}
+    WHERE uid != 0
+  ");
+}
+
+/**
+ * Implementation of hook_uninstall()
+ */
+function multiple_email_uninstall() {
+  db_query('DROP TABLE {multiple_email}');
+}
+?>

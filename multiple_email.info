@@ -1,0 +1,8 @@
+; $Id: multiple_email.info,v 1.1 2007/12/16 17:52:22 joshbenner Exp $
+name = "Multiple Email Addresses"
+description = "Allows users to have more than one registered email address"
+; Information added by drupal.org packaging script on 2008-01-24
+version = "5.x-1.x-dev"
+project = "multiple_email"
+datestamp = "1201133327"
+
