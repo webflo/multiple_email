@@ -33,7 +33,14 @@ function multiple_email_add_form(&$form_state, $account) {
     '#type' => 'value',
     '#value' => $account,
   );
-
+  
+  if (user_access('administer multiple emails')) {
+    $form['confirm'] = array(
+      '#type' => 'checkbox',
+      '#title' => t('Activate this email.'),
+    );
+  }
+  
    $form['submit'] = array(
     '#type' => 'submit',
     '#value' => t('Register'),
@@ -64,13 +71,20 @@ function multiple_email_add_form_validate($form, &$form_state) {
  * @param array $form_values
  */
 function multiple_email_add_form_submit($form, &$form_state) {
+  dsm($form_state['values']['confirm']);
   $account = $form_state['values']['account'];
   $eid = multiple_email_register_email($account->uid, $form_state['values']['email']);
 
-  if ($eid) {
-    multiple_email_send_confirmation($account, multiple_email_get_address($eid));
-    drupal_set_message(t("The email address '%email' has been added to your account and is awaiting confirmation.",
-    array('%email' => $form_state['values']['email'])));
+  if($eid) {
+    if(user_access('administer multiple emails') && $form_state['values']['confirm'] == TRUE) {
+      $email = multiple_email_get_address($eid);
+      multiple_email_confirm_email($email);
+      drupal_set_message("The address {$email->email} has been confirmed!");
+    } else {
+      multiple_email_send_confirmation($account, multiple_email_get_address($eid));
+      drupal_set_message(t("The email address '%email' has been added to your account and is awaiting confirmation.",
+      array('%email' => $form_state['values']['email'])));
+    }
   }
   else {
     form_set_error('', t("Error attempting to register '%email'", array('%email' => $form_state['values']['email'])));
