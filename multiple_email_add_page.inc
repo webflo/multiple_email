@@ -71,7 +71,6 @@ function multiple_email_add_form_validate($form, &$form_state) {
  * @param array $form_values
  */
 function multiple_email_add_form_submit($form, &$form_state) {
-  dsm($form_state['values']['confirm']);
   $account = $form_state['values']['account'];
   $eid = multiple_email_register_email($account->uid, $form_state['values']['email']);
 

@@ -31,6 +31,7 @@ function multiple_email_addresses_page($account) {
     'data' => t('Delete'),
   );
   
+  $rows = array();
   foreach ($addresses as $a) {
     $tmp = array();
     
@@ -64,9 +65,10 @@ function multiple_email_addresses_page($account) {
     $rows[] = $tmp;
   }
   
-  
   $output = l('Add', 'user/'. $account->uid .'/edit/email-addresses/add');
-  $output .= theme('table', $header, $rows, array('class' => 'multiple-email-table'));
+  if(count($rows) > 0) {
+    $output .= theme('table', $header, $rows, array('class' => 'multiple-email-table'));
+  }
   
   return $output;
 }

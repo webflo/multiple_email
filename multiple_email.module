@@ -186,17 +186,25 @@ function multiple_email_menu_alter(&$items) {
  * @return mixed
  */
 function multiple_email_user($op, &$edit, &$account, $category = NULL) {
-  if ($op == 'categories') {
-    return array(array('name' => 'email-addresses', 'title' => 'E-Mail addresses', 'weight' => 100));
-  }
-
-  if ($category == 'email-addresses') {
-    switch ($op) {
-      case 'form':
+  switch ($op) {
+    case 'categories':
+      return array(array('name' => 'email-addresses', 'title' => 'E-Mail addresses', 'weight' => 100));
+      break;
+      
+    case 'form':
+      if ($category == 'email-addresses') {
         $form = array();
-        return $form;     
-        break;
-    }
+        return $form;
+      }
+      break;
+      
+    case 'insert':
+      $eid = multiple_email_register_email($account->uid, $account->mail);
+      break;
+      
+    case 'delete':
+      db_query('DELETE FROM {multiple_email} WHERE uid = %d', $account->uid);
+      break;
   }
 }
 
